@@ -9,27 +9,23 @@ const registerUser: RouteHandler<{
 }> = async (req, res) => {
   const { firstName, lastName, email, password } = req.body;
 
-  try {
-    const hashedPassword = await hashPassword(password);
+  const hashedPassword = await hashPassword(password);
 
-    const user = await req.server.prisma.user.create({
-      data: {
-        firstName,
-        lastName,
-        email,
-        password: hashedPassword,
-      },
-    });
+  const user = await req.server.prisma.user.create({
+    data: {
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+    },
+  });
 
-    res.send({
-      success: true,
-      data: {
-        user,
-      },
-    });
-  } catch (error) {
-    console.log(error);
-  }
+  res.send({
+    success: true,
+    data: {
+      user,
+    },
+  });
 };
 
 const login: RouteHandler<{
@@ -38,41 +34,45 @@ const login: RouteHandler<{
 }> = async (req, res) => {
   const { email, password } = req.body;
 
-  console.log("req.body :", req.body);
+  const user = await req.server.prisma.user.findFirst({
+    where: {
+      email: email,
+    },
+  });
 
-  try {
-    const user = await req.server.prisma.user.findFirst({
-      where: {
-        email: email,
-      },
-    });
-
-    if (!user) {
-      console.log("invalid email");
-      throw new Error("invalid email");
-    }
-
-    const passwordCheck = await verifyPassword(password, user.password);
-
-    if (!passwordCheck) {
-      console.log("invalid password");
-      throw new Error("invalid password");
-    }
-
-    console.log("user :", user);
-
-    res.send({
-      success: true,
-      data: {
-        user,
-      },
-    });
-  } catch (error) {
-    console.log(error);
+  if (!user) {
+    console.log("invalid email");
+    throw req.server.httpErrors.unauthorized();
   }
+
+  const passwordCheck = await verifyPassword(password, user.password);
+
+  if (!passwordCheck) {
+    console.log("invalid password");
+    throw req.server.httpErrors.unauthorized();
+  }
+
+  req.session.set("user", {
+    id: user.id,
+    email: user.email,
+  });
+
+  res.send({
+    success: true,
+    data: {
+      user,
+    },
+  });
+};
+
+const logOut: RouteHandler = async (req, res) => {
+  req.session.delete();
+
+  res.send({ success: true, message: "Logged out successfully" });
 };
 
 export default {
   registerUser,
   login,
+  logOut,
 };

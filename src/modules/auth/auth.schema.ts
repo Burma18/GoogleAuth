@@ -30,7 +30,7 @@ const login = {
     password: z.string(),
   }),
   response: z.object({
-    success: z.literal(true),
+    success: z.boolean(),
     data: z.object({
       user,
     }),
@@ -40,7 +40,7 @@ const login = {
 const loginSchema = {
   body: generateSchema(login.body),
   response: {
-    200: generateSchema(login.body),
+    200: generateSchema(login.response),
   },
 };
 
