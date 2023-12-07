@@ -4,15 +4,15 @@ import prisma from "./plugins/prisma";
 import { routes } from "./routes";
 import fastifySecureSession from "@fastify/secure-session";
 import Sensible from "@fastify/sensible";
-import fastifyOauth2 from "@fastify/oauth2";
-const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
+import FastifyPassport from "@fastify/passport";
+import auth from "./plugins/auth";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 
 declare module "fastify" {
   interface FastifyInstance {
     prisma: PrismaClient;
-    userProtect: any;
-    oauth2: any;
+    protect: any;
+    googleOAuth2: any;
   }
 }
 
@@ -26,33 +26,22 @@ export function buildServer() {
     },
   });
 
+  server.register(FastifyPassport.initialize());
+  server.register(FastifyPassport.secureSession());
+
+  server.register(auth);
+
   server.register(prisma);
-
-  server.register(passport.initialize());
-
-  // // @ts-ignore
-  // server.register(fastifyOauth2, {
-  //   name: "googleOAuth2",
-  //   credentials: {
-  //     client: {
-  //       id: process.env.GOOGLE_CLIENT_ID,
-  //       secret: process.env.GOOGLE_CLIENT_SECRET,
-  //     },
-  //     auth: fastifyOauth2.GOOGLE_CONFIGURATION,
-  //   },
-  //   startRedirectPath: "/login-with-google",
-  //   callbackUri: "http://localhost:4000/auth/google/callback",
-  // });
 
   server.register(Sensible);
 
   server.register(routes, { prefix: "/api/v1" });
 
-  passport.use(
+  FastifyPassport.use(
     new GoogleStrategy(
       {
-        clientID: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOGLE_CLIENT_SECRET,
+        clientID: process.env.GOOGLE_CLIENT_ID!,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
         callbackURL: `http://localhost:4000/auth/google/callback`,
         passReqToCallback: true,
       },
@@ -70,6 +59,8 @@ export function buildServer() {
           },
         });
 
+        console.log("pulledUser :", pulledUser);
+
         if (!pulledUser) {
           newUser = true;
           pulledUser = await server.prisma.user.create({
@@ -80,14 +71,12 @@ export function buildServer() {
               lastName: profile?.family_name || "",
             },
           });
-        }
 
-        console.log("reached google strategy");
-
-        if (!newUser) cb(undefined, pulledUser);
-        else {
-          pulledUser.newUser = true;
-          cb(undefined, pulledUser);
+          if (!newUser) cb(undefined, pulledUser);
+          else {
+            pulledUser.newUser = true;
+            cb(undefined, pulledUser);
+          }
         }
       }
     )
@@ -96,27 +85,21 @@ export function buildServer() {
   server.get(
     "/auth/google/callback",
     {
-      preValidation: (req, res, done) =>
-        passport.authenticate("google", {
-          session: false,
+      preValidation: (req: any, res) =>
+        //@ts-ignore
+        FastifyPassport.authenticate("google", {
           scope: ["profile", "email"],
-        })(req, res, done),
+        })(req, res),
     },
-    async (req, res) => {
-      try {
-        const user = req.user;
+    async (req: any, res) => {
+      const user = req.user;
+      console.log("user from google :", user);
 
-        console.log("user :", user);
+      res.redirect("http://localhost:4000/ping");
 
-        // Process the user information received from Google
-        // Check if the user exists in your database, create a new user, or perform other actions
-        // Return the appropriate response
-
-        res.send({ success: true, user });
-      } catch (error) {
-        res
-          .status(500)
-          .send({ success: false, message: "Internal Server Error" });
+      if (!user) {
+        res.redirect("http://localhost:4000");
+        console.log("failed user google auth");
       }
     }
   );

@@ -34,6 +34,8 @@ const login: RouteHandler<{
 }> = async (req, res) => {
   const { email, password } = req.body;
 
+  console.log("user from login :", req.user);
+
   const user = await req.server.prisma.user.findFirst({
     where: {
       email: email,
@@ -52,10 +54,10 @@ const login: RouteHandler<{
     throw req.server.httpErrors.unauthorized();
   }
 
-  req.session.set("user", {
-    id: user.id,
-    email: user.email,
-  });
+  // req.session.set("user", {
+  //   id: user.id,
+  //   email: user.email,
+  // });
 
   res.send({
     success: true,
@@ -66,6 +68,7 @@ const login: RouteHandler<{
 };
 
 const logOut: RouteHandler = async (req, res) => {
+  req.logout();
   req.session.delete();
 
   res.send({ success: true, message: "Logged out successfully" });

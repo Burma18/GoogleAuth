@@ -1,16 +1,15 @@
 import { FastifyInstance } from "fastify";
 import usersController from "./users.controller";
 import usersSchema from "./users.schema";
-import { userProtect } from "../../utils/helpers";
+import auth from "../../plugins/auth";
 
 export default async function userRoutes(app: FastifyInstance) {
   app.get(
     "/",
     {
-      preHandler: userProtect,
+      preHandler: app.protect,
       schema: usersSchema.getUsersSchema,
     },
-    // @ts-ignore
     usersController.getUsers
   );
 }

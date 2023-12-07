@@ -11,6 +11,7 @@
   "dependencies": {
     "@anatine/zod-openapi": "^2.2.1",
     "@fastify/oauth2": "^5.1.0",
+    "@fastify/passport": "^2.4.0",
     "@fastify/secure-session": "^7.1.0",
     "@fastify/sensible": "^5.5.0",
     "@prisma/client": "^5.6.0",
@@ -21,12 +22,15 @@
     "fastify-plugin": "^4.5.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
+    "passport-local": "^1.0.0",
     "prisma": "^5.6.0",
     "ts-node": "^10.9.1",
     "tsx": "^4.6.2",
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@types/bcrypt": "^5.0.2"
+    "@types/bcrypt": "^5.0.2",
+    "@types/passport-google-oauth20": "^2.0.14",
+    "@types/passport-local": "^1.0.38"
   }
 }
