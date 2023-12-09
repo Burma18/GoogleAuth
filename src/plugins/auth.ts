@@ -4,7 +4,6 @@ import { Strategy as LocalStrategy } from "passport-local";
 import { verifyPassword } from "../utils/helpers";
 import fp from "fastify-plugin";
 import { User } from "@prisma/client";
-import { number } from "zod";
 
 async function auth(app: FastifyInstance) {
   FastifyPassport.use(
