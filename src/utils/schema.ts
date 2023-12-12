@@ -1,4 +1,4 @@
-import z from "zod";
+import z, { string } from "zod";
 
 export const user = z.object({
   id: z.number(),
@@ -6,4 +6,5 @@ export const user = z.object({
   lastName: z.string(),
   email: z.string(),
   password: z.string(),
+  role: z.string(),
 });
