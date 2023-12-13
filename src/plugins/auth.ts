@@ -44,12 +44,14 @@ async function auth(app: FastifyInstance) {
     {
       id: number;
       email: string;
+      role: string;
     }
   >(async (user) => {
     console.log("user from registerUserSerializer :", user);
     return {
       id: user.id,
       email: user.email,
+      role: user.role,
     };
   });
 
@@ -58,6 +60,7 @@ async function auth(app: FastifyInstance) {
     {
       id: number;
       email: string;
+      role: string;
     },
     User | null
   >(async (user) => {
@@ -73,6 +76,12 @@ async function auth(app: FastifyInstance) {
     console.log("it reached protect middleware");
     if (req.isUnauthenticated()) {
       throw app.httpErrors.unauthorized();
+    }
+  });
+
+  app.decorate("isAdmin", async function (req: FastifyRequest) {
+    if (req.user.role !== "ADMIN") {
+      throw app.httpErrors.forbidden();
     }
   });
 }

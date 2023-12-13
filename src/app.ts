@@ -12,6 +12,7 @@ declare module "fastify" {
   interface FastifyInstance {
     prisma: PrismaClient;
     protect: any;
+    isAdmin: any;
     googleOAuth2: any;
   }
 }

@@ -1,6 +1,7 @@
 import { generateSchema } from "@anatine/zod-openapi";
 import { user } from "../../utils/schema";
 import z from "zod";
+import { UserRole } from "@prisma/client";
 
 const getUsers = {
   response: z.object({
@@ -15,7 +16,39 @@ const getUsersSchema = {
   },
 };
 
+const changeUserRole = {
+  params: z.object({
+    id: z.number(),
+  }),
+  body: z.object({
+    role: z.enum([
+      UserRole.ADMIN,
+      UserRole.BETATESTER,
+      UserRole.INSTRUCTOR,
+      UserRole.MENTOR,
+      UserRole.SUPERADMIN,
+      UserRole.USER,
+    ]),
+  }),
+  response: z.object({
+    success: z.boolean(),
+    data: z.object({
+      user,
+    }),
+  }),
+};
+
+const changeUserRoleSchema = {
+  body: generateSchema(changeUserRole.body),
+  params: generateSchema(changeUserRole.params),
+  response: {
+    200: generateSchema(changeUserRole.response),
+  },
+};
+
 export default {
   getUsers,
   getUsersSchema,
+  changeUserRole,
+  changeUserRoleSchema,
 };
