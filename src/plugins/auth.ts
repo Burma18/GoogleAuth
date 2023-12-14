@@ -80,7 +80,7 @@ async function auth(app: FastifyInstance) {
   });
 
   app.decorate("isAdmin", async function (req: FastifyRequest) {
-    if (req.user.role !== "ADMIN") {
+    if (req.user?.role !== "ADMIN") {
       throw app.httpErrors.forbidden();
     }
   });

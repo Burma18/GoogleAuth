@@ -7,7 +7,7 @@ export default async function userRoutes(app: FastifyInstance) {
   app.get(
     "/",
     {
-      preHandler: app.isAdmin,
+      preHandler: app.protect,
       schema: usersSchema.getUsersSchema,
     },
     usersController.getUsers
@@ -16,7 +16,7 @@ export default async function userRoutes(app: FastifyInstance) {
   app.patch(
     "/:id",
     {
-      preHandler: [app.protect, app.isAdmin],
+      preHandler: [app.isAdmin],
       schema: usersSchema.changeUserRoleSchema,
     },
     usersController.changeUserRole
