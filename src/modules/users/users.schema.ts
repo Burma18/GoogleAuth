@@ -16,6 +16,23 @@ const getUsersSchema = {
   },
 };
 
+const getUser = {
+  params: z.object({
+    id: z.number(),
+  }),
+  response: z.object({
+    success: z.boolean(),
+    user: user,
+  }),
+};
+
+const getUserSchema = {
+  params: generateSchema(getUser.params),
+  response: {
+    200: generateSchema(getUsers.response),
+  },
+};
+
 const changeUserRole = {
   params: z.object({
     id: z.number(),
@@ -49,6 +66,8 @@ const changeUserRoleSchema = {
 export default {
   getUsers,
   getUsersSchema,
+  getUser,
+  getUserSchema,
   changeUserRole,
   changeUserRoleSchema,
 };

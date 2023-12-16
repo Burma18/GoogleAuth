@@ -7,14 +7,18 @@ import Sensible from "@fastify/sensible";
 import FastifyPassport from "@fastify/passport";
 import auth from "./plugins/auth";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { User } from "@prisma/client";
 
 declare module "fastify" {
   interface FastifyInstance {
     prisma: PrismaClient;
     protect: any;
     isAdmin: any;
+    isMentor: any;
     googleOAuth2: any;
   }
+
+  interface PassportUser extends User {}
 }
 
 export function buildServer() {

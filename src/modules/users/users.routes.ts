@@ -13,6 +13,15 @@ export default async function userRoutes(app: FastifyInstance) {
     usersController.getUsers
   );
 
+  app.get(
+    "/:id",
+    {
+      preHandler: [app.isMentor],
+      schema: usersSchema.getUserSchema,
+    },
+    usersController.getUser
+  );
+
   app.patch(
     "/:id",
     {

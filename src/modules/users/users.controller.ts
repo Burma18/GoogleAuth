@@ -1,5 +1,5 @@
 import { FastifyInstance, RouteHandler } from "fastify";
-import z from "zod";
+import z, { TypeOf } from "zod";
 import usersSchema from "./users.schema";
 import { Prisma } from "@prisma/client";
 
@@ -9,6 +9,25 @@ const getUsers: RouteHandler<{
   const users = await req.server.prisma.user.findMany();
 
   res.send({ success: true, users: users });
+};
+
+const getUser: RouteHandler<{
+  Params: z.TypeOf<typeof usersSchema.getUser.params>;
+  Reply: z.TypeOf<typeof usersSchema.getUser.response>;
+}> = async (req, res) => {
+  const { id } = req.params;
+
+  const user = await req.server.prisma.user.findFirst({
+    where: {
+      id,
+    },
+  });
+
+  if (!user) {
+    throw req.server.httpErrors.notFound("User is not found");
+  }
+
+  res.send({ success: true, user });
 };
 
 const changeUserRole: RouteHandler<{
@@ -51,5 +70,6 @@ const changeUserRole: RouteHandler<{
 
 export default {
   getUsers,
+  getUser,
   changeUserRole,
 };
