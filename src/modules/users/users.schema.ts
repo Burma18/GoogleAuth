@@ -29,7 +29,7 @@ const getUser = {
 const getUserSchema = {
   params: generateSchema(getUser.params),
   response: {
-    200: generateSchema(getUsers.response),
+    200: generateSchema(getUser.response),
   },
 };
 
