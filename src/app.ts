@@ -113,5 +113,20 @@ export function buildServer() {
     res.send("pong");
   });
 
+  // Example data
+  const query = "youtube"; // The search query
+  const page = {
+    content: "This is an Example content for testing the RegExp function.",
+  };
+
+  // Creating a case-insensitive regular expression using the query
+  const regex = new RegExp(query, "i");
+
+  // Testing if the page content contains the query (case-insensitive)
+  const isMatch = regex.test(page.content);
+
+  // Output the result
+  console.log(`Does the page content contain "${query}"? ${isMatch}`);
+
   return server;
 }
